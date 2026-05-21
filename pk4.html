@@ -1,0 +1,411 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>Схема курса | Производственный контроль</title>
+    <style>
+        * { box-sizing: border-box; }
+        body {
+            font-family: system-ui, 'Segoe UI', 'Roboto', sans-serif;
+            background: #f2f5f9;
+            margin: 0;
+            padding: 16px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+        .all-modules {
+            max-width: 900px;
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+        .schema-container {
+            background: white;
+            border-radius: 28px;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.05);
+            padding: 1.2rem 1.2rem;
+        }
+        .module-header {
+            text-align: center;
+            margin-bottom: 1.5rem;
+        }
+        .module-badge {
+            background: #1e3a5f;
+            color: white;
+            display: inline-block;
+            padding: 4px 14px;
+            border-radius: 40px;
+            font-weight: 600;
+            font-size: 0.75rem;
+            letter-spacing: 0.5px;
+            margin-bottom: 8px;
+        }
+        .module-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin: 0;
+            background: linear-gradient(135deg, #1e3a5f, #2b5a8c);
+            background-clip: text;
+            -webkit-background-clip: text;
+            color: transparent;
+        }
+        .module-sub {
+            color: #4b6f8e;
+            margin-top: 4px;
+            font-size: 0.85rem;
+        }
+        .courses-vertical {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+        .course-card {
+            background: #ffffff;
+            border-radius: 24px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.03);
+            border: 1px solid #e9eef3;
+            overflow: hidden;
+        }
+        .course-card[data-course="1"] .course-header {
+            background: #eef4ff;
+            border-bottom-color: #3b82f6;
+        }
+        .course-card[data-course="1"] .course-number { color: #2563eb; }
+        .course-card[data-course="2"] .course-header {
+            background: #edfaf3;
+            border-bottom-color: #10b981;
+        }
+        .course-card[data-course="2"] .course-number { color: #059669; }
+        .course-card[data-course="3"] .course-header {
+            background: #fff3e8;
+            border-bottom-color: #f97316;
+        }
+        .course-card[data-course="3"] .course-number { color: #ea580c; }
+        .course-card[data-course="4"] .course-header {
+            background: #f3e8ff;
+            border-bottom-color: #a855f7;
+        }
+        .course-card[data-course="4"] .course-number { color: #9333ea; }
+        .course-header {
+            position: relative;
+            padding: 0.8rem 1rem;
+            cursor: pointer;
+            border-bottom: 2px solid;
+            display: flex;
+            flex-direction: column;
+        }
+        .course-header:hover { filter: brightness(0.97); }
+        .course-number {
+            font-size: 0.7rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 2px;
+        }
+        .course-name {
+            font-size: 1rem;
+            font-weight: 700;
+            margin: 2px 0 2px;
+            color: #1a2c3e;
+            padding-right: 30px;
+        }
+        .course-teaser {
+            font-size: 0.75rem;
+            color: #4a627a;
+            margin: 2px 0 0;
+            padding-right: 30px;
+        }
+        .toggle-icon {
+            position: absolute;
+            right: 1rem;
+            top: calc(0.8rem + 0.7rem + 1rem + 2px + 2px + 0.2rem);
+            transform: translateY(-50%);
+            font-size: 1rem;
+            font-weight: 500;
+        }
+        .lessons-list {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease-out;
+            background: white;
+            padding: 0 1rem;
+        }
+        .lessons-list.open {
+            max-height: 800px;
+            padding: 0.3rem 1rem 0.6rem 1rem;
+        }
+        .lesson-item {
+            padding: 0.4rem 0 0.4rem 1rem;
+            border-bottom: 1px solid #edf2f7;
+            position: relative;
+        }
+        .lesson-item:last-child { border-bottom: none; }
+        .lesson-item::before {
+            content: "•";
+            position: absolute;
+            left: 0;
+            top: 0.5rem;
+            color: #5f8ab6;
+            font-size: 0.9rem;
+        }
+        .lesson-head {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: baseline;
+            gap: 6px;
+        }
+        .lesson-number {
+            font-weight: bold;  /* жирный номер урока */
+            color: #1e4663;
+            font-size: 0.8rem;
+            white-space: nowrap;
+        }
+        .lesson-title {
+            font-weight: normal; /* не жирное название */
+            font-size: 0.85rem;
+            color: #1a2c3e;
+            flex: 1;
+        }
+        .vertical-arrow {
+            text-align: center;
+            font-size: 1.2rem;
+            color: #cbd5e1;
+            margin: -0.3rem 0 -0.3rem 0;
+        }
+        .expand-all-btn {
+            background: none;
+            border: 1px solid #cbd5e1;
+            border-radius: 60px;
+            padding: 3px 12px;
+            font-size: 0.7rem;
+            cursor: pointer;
+            color: #2b6a9f;
+            margin-left: 12px;
+        }
+        .expand-all-btn:hover {
+            background: #e2edf9;
+        }
+        .header-flex {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 8px;
+            flex-wrap: wrap;
+            margin-top: 8px;
+        }
+        @media (max-width: 600px) {
+            .schema-container { padding: 1rem; }
+            .course-name { font-size: 0.9rem; }
+            .lesson-title { font-size: 0.8rem; }
+        }
+    </style>
+</head>
+<body>
+<div class="all-modules">
+    <!-- МОДУЛЬ 1 -->
+    <div class="schema-container">
+        <div class="module-header">
+            <div class="module-badge">Модуль 1</div>
+            <div class="module-title">Организация производственного контроля</div>
+            <div class="module-sub">Основы, структура, планирование</div>
+            <div class="header-flex">
+                <span style="font-size:0.75rem;">🔽 Нажмите на курс</span>
+                <button class="expand-all-btn" data-module="1">📂 Развернуть всё</button>
+            </div>
+        </div>
+        <div class="courses-vertical" id="mod1-courses">
+            <div class="course-card" data-course="1">
+                <div class="course-header" onclick="toggleLessons(1,1)">
+                    <div class="course-number">КУРС 1</div>
+                    <div class="course-name">Что нужно знать, чтобы организовать ПК правильно</div>
+                    <div class="course-teaser">📌 Правовые основы, зоны ответственности, риски</div>
+                    <div class="toggle-icon" id="m1t1">▼</div>
+                </div>
+                <div class="lessons-list" id="m1l1">
+                    <div class="lesson-item"><div class="lesson-head"><span class="lesson-number">Урок 1</span><span class="lesson-title">Вводный урок: как устроена программа</span></div></div>
+                    <div class="lesson-item"><div class="lesson-head"><span class="lesson-number">Урок 2</span><span class="lesson-title">Эксплуатируете ОПО — создайте производственный контроль</span></div></div>
+                    <div class="lesson-item"><div class="lesson-head"><span class="lesson-number">Урок 3</span><span class="lesson-title">Как поделить ответственность за ПК с подрядчиком</span></div></div>
+                    <div class="lesson-item"><div class="lesson-head"><span class="lesson-number">Урок 4</span><span class="lesson-title">Ответственность за нарушение требований промбезопасности</span></div></div>
+                </div>
+            </div>
+            <div class="vertical-arrow">↓</div>
+            <div class="course-card" data-course="2">
+                <div class="course-header" onclick="toggleLessons(2,1)">
+                    <div class="course-number">КУРС 2</div>
+                    <div class="course-name">Основы организации производственного контроля</div>
+                    <div class="course-teaser">🏗️ Структура, роли, документы, запуск системы</div>
+                    <div class="toggle-icon" id="m1t2">▼</div>
+                </div>
+                <div class="lessons-list" id="m1l2">
+                    <div class="lesson-item"><div class="lesson-head"><span class="lesson-number">Урок 1</span><span class="lesson-title">Как определить оптимальную структуру ПК</span></div></div>
+                    <div class="lesson-item"><div class="lesson-head"><span class="lesson-number">Урок 2</span><span class="lesson-title">Обязательные требования к участникам ПК</span></div></div>
+                    <div class="lesson-item"><div class="lesson-head"><span class="lesson-number">Урок 3</span><span class="lesson-title">Требования профстандартов к квалификации участников ПК</span></div></div>
+                    <div class="lesson-item"><div class="lesson-head"><span class="lesson-number">Урок 4</span><span class="lesson-title">Распределение прав и обязанностей в структуре ПК</span></div></div>
+                    <div class="lesson-item"><div class="lesson-head"><span class="lesson-number">Урок 5</span><span class="lesson-title">Положение о ПК — основа управления безопасностью</span></div></div>
+                    <div class="lesson-item"><div class="lesson-head"><span class="lesson-number">Урок 6</span><span class="lesson-title">Как запустить работу ПК на предприятии</span></div></div>
+                </div>
+            </div>
+            <div class="vertical-arrow">↓</div>
+            <div class="course-card" data-course="3">
+                <div class="course-header" onclick="toggleLessons(3,1)">
+                    <div class="course-number">КУРС 3</div>
+                    <div class="course-name">Планирование мероприятий</div>
+                    <div class="course-teaser">📋 Проверки, многоуровневый контроль, годовой план</div>
+                    <div class="toggle-icon" id="m1t3">▼</div>
+                </div>
+                <div class="lessons-list" id="m1l3">
+                    <div class="lesson-item"><div class="lesson-head"><span class="lesson-number">Урок 1</span><span class="lesson-title">Внутренние проверки: с чего начать и чем руководствоваться</span></div></div>
+                    <div class="lesson-item"><div class="lesson-head"><span class="lesson-number">Урок 2</span><span class="lesson-title">Многоступенчатый ПК: от формальности к вовлечённости</span></div></div>
+                    <div class="lesson-item"><div class="lesson-head"><span class="lesson-number">Урок 3</span><span class="lesson-title">Какие мероприятия включить в годовой план по промбезопасности</span></div></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- МОДУЛЬ 2 (аналогично, в каждом уроке номер жирный, название обычное) -->
+    <div class="schema-container">
+        <div class="module-header">
+            <div class="module-badge">Модуль 2</div>
+            <div class="module-title">Проведение производственного контроля</div>
+            <div class="module-sub">Проверки, документация, осмотры</div>
+            <div class="header-flex">
+                <span style="font-size:0.75rem;">🔽 Нажмите на курс</span>
+                <button class="expand-all-btn" data-module="2">📂 Развернуть всё</button>
+            </div>
+        </div>
+        <div class="courses-vertical" id="mod2-courses">
+            <div class="course-card" data-course="1">
+                <div class="course-header" onclick="toggleLessons(1,2)">
+                    <div class="course-number">КУРС 1</div>
+                    <div class="course-name">Как проводить производственный контроль</div>
+                    <div class="course-teaser">📌 Начало проверки, объективность, анализ рисков</div>
+                    <div class="toggle-icon" id="m2t1">▼</div>
+                </div>
+                <div class="lessons-list" id="m2l1">
+                    <div class="lesson-item"><div class="lesson-head"><span class="lesson-number">Урок 1</span><span class="lesson-title">Производственный контроль в действии: как начать проверку</span></div></div>
+                    <div class="lesson-item"><div class="lesson-head"><span class="lesson-number">Урок 2</span><span class="lesson-title">Во время проверки: объективность, полнота, анализ рисков</span></div></div>
+                </div>
+            </div>
+            <div class="vertical-arrow">↓</div>
+            <div class="course-card" data-course="2">
+                <div class="course-header" onclick="toggleLessons(2,2)">
+                    <div class="course-number">КУРС 2</div>
+                    <div class="course-name">Документарная проверка ОПО: алгоритмы поиска несоответствий</div>
+                    <div class="course-teaser">📄 Перечень документов, поиск ошибок, акт проверки</div>
+                    <div class="toggle-icon" id="m2t2">▼</div>
+                </div>
+                <div class="lessons-list" id="m2l2">
+                    <div class="lesson-item"><div class="lesson-head"><span class="lesson-number">Урок 1</span><span class="lesson-title">Поиск и проверка документов: составляем перечень и выявляем устаревшие ЛНА</span></div></div>
+                    <div class="lesson-item"><div class="lesson-head"><span class="lesson-number">Урок 2</span><span class="lesson-title">Оформление результатов документарной проверки: от нарушений до акта</span></div></div>
+                </div>
+            </div>
+            <div class="vertical-arrow">↓</div>
+            <div class="course-card" data-course="3">
+                <div class="course-header" onclick="toggleLessons(3,2)">
+                    <div class="course-number">КУРС 3</div>
+                    <div class="course-name">Наблюдение и беседа с персоналом ОПО</div>
+                    <div class="course-teaser">👁️ Неформальный контроль, методика бесед</div>
+                    <div class="toggle-icon" id="m2t3">▼</div>
+                </div>
+                <div class="lessons-list" id="m2l3">
+                    <div class="lesson-item"><div class="lesson-head"><span class="lesson-number">Урок 1</span><span class="lesson-title">Неформальный контроль как инструмент безопасности</span></div></div>
+                    <div class="lesson-item"><div class="lesson-head"><span class="lesson-number">Урок 2</span><span class="lesson-title">Методика бесед с персоналом: задаём правильные вопросы</span></div></div>
+                </div>
+            </div>
+            <div class="vertical-arrow">↓</div>
+            <div class="course-card" data-course="4">
+                <div class="course-header" onclick="toggleLessons(4,2)">
+                    <div class="course-number">КУРС 4</div>
+                    <div class="course-name">Скрытые дефекты ОПО: практика осмотра</div>
+                    <div class="course-teaser">🔧 Подготовка, осмотр, выявление дефектов</div>
+                    <div class="toggle-icon" id="m2t4">▼</div>
+                </div>
+                <div class="lessons-list" id="m2l4">
+                    <div class="lesson-item"><div class="lesson-head"><span class="lesson-number">Урок 1</span><span class="lesson-title">Подготовка к осмотру ОПО: алгоритм для специалиста</span></div></div>
+                    <div class="lesson-item"><div class="lesson-head"><span class="lesson-number">Урок 2</span><span class="lesson-title">Осмотр сооружений и оборудования: находим дефекты до аварии</span></div></div>
+                    <div class="lesson-item"><div class="lesson-head"><span class="lesson-number">Урок 3</span><span class="lesson-title">Практикум: переходим от теории к практике</span></div></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- МОДУЛЬ 3 -->
+    <div class="schema-container">
+        <div class="module-header">
+            <div class="module-badge">Модуль 3</div>
+            <div class="module-title">Документирование и обработка итогов ПК</div>
+            <div class="module-sub">Акт, анализ, корректировка, отчётность</div>
+            <div class="header-flex">
+                <span style="font-size:0.75rem;">🔽 Нажмите на курс</span>
+                <button class="expand-all-btn" data-module="3">📂 Развернуть всё</button>
+            </div>
+        </div>
+        <div class="courses-vertical" id="mod3-courses">
+            <div class="course-card" data-course="1">
+                <div class="course-header" onclick="toggleLessons(1,3)">
+                    <div class="course-number">КУРС 1</div>
+                    <div class="course-name">Оформление акта и анализ результатов</div>
+                    <div class="course-teaser">📑 Документирование, анализ, корректирующие мероприятия, отчётность</div>
+                    <div class="toggle-icon" id="m3t1">▼</div>
+                </div>
+                <div class="lessons-list" id="m3l1">
+                    <div class="lesson-item"><div class="lesson-head"><span class="lesson-number">Урок 1</span><span class="lesson-title">Почему документ после проверки не менее важен, чем сама проверка</span></div></div>
+                    <div class="lesson-item"><div class="lesson-head"><span class="lesson-number">Урок 2</span><span class="lesson-title">Как оформлять документы по ПК, чтобы у инспектора не осталось сомнений</span></div></div>
+                    <div class="lesson-item"><div class="lesson-head"><span class="lesson-number">Урок 3</span><span class="lesson-title">Как анализировать результаты ПК</span></div></div>
+                    <div class="lesson-item"><div class="lesson-head"><span class="lesson-number">Урок 4</span><span class="lesson-title">Корректирующие мероприятия: как "лечить болезнь", а не симптомы</span></div></div>
+                    <div class="lesson-item"><div class="lesson-head"><span class="lesson-number">Урок 5</span><span class="lesson-title">Производственный контроль: как отчитаться перед Ростехнадзором</span></div></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    function toggleLessons(courseIdx, moduleId) {
+        const lessonsDiv = document.getElementById(`m${moduleId}l${courseIdx}`);
+        const iconSpan = document.getElementById(`m${moduleId}t${courseIdx}`);
+        if (!lessonsDiv || !iconSpan) return;
+        const isOpen = lessonsDiv.classList.contains('open');
+        if (isOpen) {
+            lessonsDiv.classList.remove('open');
+            iconSpan.innerHTML = '▼';
+        } else {
+            lessonsDiv.classList.add('open');
+            iconSpan.innerHTML = '▲';
+        }
+    }
+
+    document.querySelectorAll('.expand-all-btn').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+            const moduleId = btn.getAttribute('data-module');
+            const container = document.getElementById(`mod${moduleId}-courses`);
+            if (!container) return;
+            const cards = container.querySelectorAll('.course-card');
+            let allOpen = true;
+            cards.forEach(card => {
+                const list = card.querySelector('.lessons-list');
+                if (list && !list.classList.contains('open')) allOpen = false;
+            });
+            cards.forEach((card, idx) => {
+                const list = card.querySelector('.lessons-list');
+                const icon = card.querySelector('.toggle-icon');
+                if (list && icon) {
+                    if (allOpen) {
+                        list.classList.remove('open');
+                        icon.innerHTML = '▼';
+                    } else {
+                        list.classList.add('open');
+                        icon.innerHTML = '▲';
+                    }
+                }
+            });
+            btn.textContent = allOpen ? '📂 Развернуть всё' : '📁 Свернуть всё';
+        });
+    });
+</script>
+</body>
+</html>
