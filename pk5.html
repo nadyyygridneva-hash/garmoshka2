@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>Структура обучения | Производственный контроль</title>
+    <style>
+        * { box-sizing: border-box; }
+        body {
+            font-family: system-ui, 'Segoe UI', 'Roboto', sans-serif;
+            background: #f2f5f9;
+            margin: 0;
+            padding: 16px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+        .all-modules {
+            max-width: 800px;
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            gap: 1.2rem;
+        }
+        .main-title {
+            text-align: center;
+            margin-bottom: 0.5rem;
+        }
+        .main-title h2 {
+            font-size: 1.6rem;
+            font-weight: 700;
+            margin: 0;
+            background: linear-gradient(135deg, #1e3a5f, #2b5a8c);
+            background-clip: text;
+            -webkit-background-clip: text;
+            color: transparent;
+        }
+        .module-card {
+            background: white;
+            border-radius: 24px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+            border: 1px solid #e9eef3;
+            overflow: hidden;
+        }
+        .module-card[data-module="1"] .module-header {
+            background: #eef4ff;
+            border-bottom-color: #3b82f6;
+        }
+        .module-card[data-module="1"] .module-number { color: #2563eb; }
+        .module-card[data-module="2"] .module-header {
+            background: #edfaf3;
+            border-bottom-color: #10b981;
+        }
+        .module-card[data-module="2"] .module-number { color: #059669; }
+        .module-card[data-module="3"] .module-header {
+            background: #fff3e8;
+            border-bottom-color: #f97316;
+        }
+        .module-card[data-module="3"] .module-number { color: #ea580c; }
+        .module-header {
+            position: relative;
+            padding: 0.8rem 1rem;
+            cursor: pointer;
+            border-bottom: 2px solid;
+            display: flex;
+            flex-direction: column;
+        }
+        .module-header:hover { filter: brightness(0.97); }
+        .module-number {
+            font-size: 0.7rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 2px;
+        }
+        .module-name {
+            font-size: 1.2rem;
+            font-weight: 700;
+            margin: 2px 0 2px;
+            color: #1a2c3e;
+            padding-right: 30px;
+        }
+        .module-teaser {
+            font-size: 0.75rem;
+            color: #4a627a;
+            margin: 2px 0 0;
+            padding-right: 30px;
+        }
+        .toggle-icon {
+            position: absolute;
+            right: 1rem;
+            top: calc(0.8rem + 0.7rem + 1.2rem + 2px + 2px + 0.2rem);
+            transform: translateY(-50%);
+            font-size: 1rem;
+            font-weight: 500;
+        }
+        .courses-list {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease-out;
+            background: white;
+            padding: 0 1rem;
+        }
+        .courses-list.open {
+            max-height: 800px;
+            padding: 0.5rem 1rem 0.8rem 1rem;
+        }
+        .course-item {
+            padding: 0.4rem 0 0.4rem 1.2rem;
+            border-bottom: 1px solid #edf2f7;
+            position: relative;
+        }
+        .course-item:last-child { border-bottom: none; }
+        .course-item::before {
+            content: "•";
+            position: absolute;
+            left: 0;
+            top: 0.5rem;
+            color: #5f8ab6;
+            font-size: 0.9rem;
+        }
+        .course-title {
+            font-weight: normal;
+            font-size: 0.85rem;
+            color: #1a2c3e;
+            line-height: 1.3;
+        }
+        .expand-all-btn {
+            background: none;
+            border: 1px solid #cbd5e1;
+            border-radius: 60px;
+            padding: 3px 12px;
+            font-size: 0.7rem;
+            cursor: pointer;
+            color: #2b6a9f;
+            margin-left: 12px;
+        }
+        .expand-all-btn:hover {
+            background: #e2edf9;
+        }
+        .header-flex {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 8px;
+            flex-wrap: wrap;
+            margin-top: 8px;
+        }
+        @media (max-width: 600px) {
+            .module-name { font-size: 1rem; }
+            .course-title { font-size: 0.8rem; }
+            .main-title h2 { font-size: 1.3rem; }
+        }
+    </style>
+</head>
+<body>
+<div class="all-modules">
+    <div class="main-title">
+        <h2>Структура обучения</h2>
+    </div>
+    <!-- МОДУЛЬ 1 -->
+    <div class="module-card" data-module="1">
+        <div class="module-header" onclick="toggleModule(1)">
+            <div class="module-number">Модуль 1</div>
+            <div class="module-name">Организация производственного контроля</div>
+            <div class="module-teaser">📌 Основы, структура, планирование</div>
+            <div class="toggle-icon" id="mod1Icon">▼</div>
+        </div>
+        <div class="courses-list" id="mod1Courses">
+            <div class="course-item"><div class="course-title">Курс 1. Добро пожаловать на обучение по производственному контролю</div></div>
+            <div class="course-item"><div class="course-title">Курс 2. Что нужно знать, чтобы организовать производственный контроль правильно</div></div>
+            <div class="course-item"><div class="course-title">Курс 3. Основы организации производственного контроля</div></div>
+            <div class="course-item"><div class="course-title">Курс 4. Планирование мероприятий</div></div>
+        </div>
+    </div>
+
+    <!-- МОДУЛЬ 2 -->
+    <div class="module-card" data-module="2">
+        <div class="module-header" onclick="toggleModule(2)">
+            <div class="module-number">Модуль 2</div>
+            <div class="module-name">Проведение производственного контроля</div>
+            <div class="module-teaser">🔍 Проверки, документация, осмотры</div>
+            <div class="toggle-icon" id="mod2Icon">▼</div>
+        </div>
+        <div class="courses-list" id="mod2Courses">
+            <div class="course-item"><div class="course-title">Курс 1. Как проводить производственный контроль</div></div>
+            <div class="course-item"><div class="course-title">Курс 2. Документарная проверка ОПО: алгоритмы поиска несоответствий</div></div>
+            <div class="course-item"><div class="course-title">Курс 3. Наблюдение и беседа с персоналом ОПО: как увидеть неявные нарушения</div></div>
+            <div class="course-item"><div class="course-title">Курс 4. Скрытые дефекты ОПО: практика осмотра</div></div>
+        </div>
+    </div>
+
+    <!-- МОДУЛЬ 3 -->
+    <div class="module-card" data-module="3">
+        <div class="module-header" onclick="toggleModule(3)">
+            <div class="module-number">Модуль 3</div>
+            <div class="module-name">Документирование и обработка итогов ПК</div>
+            <div class="module-teaser">📑 Акт, анализ, отчётность</div>
+            <div class="toggle-icon" id="mod3Icon">▼</div>
+        </div>
+        <div class="courses-list" id="mod3Courses">
+            <div class="course-item"><div class="course-title">Курс 1. Оформление акта и анализ результатов</div></div>
+        </div>
+    </div>
+
+    <div style="text-align: center; margin-top: 0.5rem;">
+        <button id="expandAllBtn" style="background: none; border: 1px solid #cbd5e1; border-radius: 60px; padding: 5px 16px; font-size: 0.75rem; cursor: pointer; color: #2b6a9f;">📂 Развернуть всё</button>
+    </div>
+</div>
+
+<script>
+    function toggleModule(moduleId) {
+        const coursesDiv = document.getElementById(`mod${moduleId}Courses`);
+        const iconSpan = document.getElementById(`mod${moduleId}Icon`);
+        if (!coursesDiv || !iconSpan) return;
+        const isOpen = coursesDiv.classList.contains('open');
+        if (isOpen) {
+            coursesDiv.classList.remove('open');
+            iconSpan.innerHTML = '▼';
+        } else {
+            coursesDiv.classList.add('open');
+            iconSpan.innerHTML = '▲';
+        }
+    }
+
+    const expandBtn = document.getElementById('expandAllBtn');
+    let allExpanded = false;
+    expandBtn.addEventListener('click', () => {
+        allExpanded = !allExpanded;
+        for (let i = 1; i <= 3; i++) {
+            const coursesDiv = document.getElementById(`mod${i}Courses`);
+            const iconSpan = document.getElementById(`mod${i}Icon`);
+            if (coursesDiv && iconSpan) {
+                if (allExpanded) {
+                    coursesDiv.classList.add('open');
+                    iconSpan.innerHTML = '▲';
+                } else {
+                    coursesDiv.classList.remove('open');
+                    iconSpan.innerHTML = '▼';
+                }
+            }
+        }
+        expandBtn.textContent = allExpanded ? '📁 Свернуть всё' : '📂 Развернуть всё';
+    });
+</script>
+</body>
+</html>
